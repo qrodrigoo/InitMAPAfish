@@ -1,0 +1,42 @@
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <!-- Logo -->
+    <a href="/" id="logo-link" class="flex items-center gap-4">
+        <div class="relative flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+            <i data-lucide="dna" class="text-white w-6 h-6"></i>
+        </div>
+        <div>
+            <h1 class="text-2xl font-outfit font-black tracking-tight leading-none text-white uppercase">
+                INITMAPA<span class="text-cyan-400">FISH</span>
+            </h1>
+            <span class="text-[10px] text-cyan-200/70 font-bold uppercase tracking-[0.2em]">Bio-Repository</span>
+        </div>
+    </a>
+
+    <!-- Tabs (Grouped) -->
+    <div class="flex p-1 bg-white/5 rounded-full border border-white/10 backdrop-blur-md">
+        <!-- Overview (SPA Tab) -->
+        <button class="nav-tab px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300" data-page="home" data-target="section-home">
+            Overview
+        </button>
+        <!-- Genomic Atlas (SPA Tab) -->
+        <button class="nav-tab px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300" data-page="home" data-target="section-atlas">
+            Genomic Atlas
+        </button>
+        <!-- Developer API (Link to Page) -->
+        <a href="/paginas/api.html" id="nav-api" class="px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 text-slate-400 hover:text-white">
+            <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+            API
+        </a>
+        <!-- Submit Data (New) -->
+        <a href="/paginas/submit.html" id="nav-submit" class="px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 text-emerald-400/70 hover:text-emerald-400 border border-emerald-500/0 hover:border-emerald-500/30 hover:bg-emerald-500/5">
+            <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i>
+            Submit Data
+        </a>
+    </div>
+
+    <!-- Online Status -->
+    <div class="hidden lg:flex items-center gap-3 px-4 py-2 bg-white/5 rounded-full border border-white/10">
+        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+        <span class="text-xs font-bold text-slate-300 tracking-wider">WIKIBASE ONLINE</span>
+    </div>
+</div>
