@@ -11,7 +11,8 @@ const PROPERTY_MAP = {
     "P32": "Experimental Conditions",
     "P33": "Relative Abundance",
     "P34": "Taxonomic Rank",
-    "P2": "Health Status"
+    "P2": "Health Status",
+    "P35": "Location"
 };
 
 let samplesData = [];
@@ -31,6 +32,11 @@ function getClaimValue(claim) {
             let val = datavalue.value.amount;
             if (val.startsWith('+')) val = val.substring(1);
             return parseFloat(val).toLocaleString('en-US');
+        case 'globecoordinate':
+            return {
+                lat: datavalue.value.latitude,
+                lon: datavalue.value.longitude
+            };
         default: return null;
     }
 }
@@ -89,7 +95,7 @@ async function fetchSamples() {
             PREFIX wd: <https://rodrigo-test-ciimar.wikibase.cloud/entity/>
             PREFIX wdt: <https://rodrigo-test-ciimar.wikibase.cloud/prop/direct/>
             SELECT DISTINCT ?item WHERE {
-                { ?item wdt:P5 ?o. } UNION { ?item wdt:P29 ?o. } UNION { ?item wdt:P1 ?o. }
+                { ?item wdt:P5 ?o. } UNION { ?item wdt:P29 ?o. } UNION { ?item wdt:P1 ?o. } UNION { ?item wdt:P35 ?o. }
             }
         `;
         

@@ -57,6 +57,25 @@ def make_claim(prop, value):
             "type": "statement",
             "rank": "normal"
         }
+    elif isinstance(value, dict) and 'latitude' in value:
+        return {
+            "mainsnak": {
+                "snaktype": "value",
+                "property": prop,
+                "datavalue": {
+                    "value": {
+                        "latitude": value['latitude'],
+                        "longitude": value['longitude'],
+                        "altitude": None,
+                        "precision": 0.00001,
+                        "globe": "http://www.wikidata.org/entity/Q2"
+                    },
+                    "type": "globecoordinate"
+                }
+            },
+            "type": "statement",
+            "rank": "normal"
+        }
     else:
         return {
             "mainsnak": {

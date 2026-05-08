@@ -568,7 +568,11 @@ function updateCharts(data) {
 
 const refreshBtn = document.getElementById('refresh-btn');
 if(refreshBtn) {
-    refreshBtn.addEventListener('click', fetchSamples);
+    refreshBtn.addEventListener('click', () => {
+        fetchSamples().then(() => {
+            if (typeof initGlobe === 'function') initGlobe();
+        });
+    });
 }
 
 // Initialize App
@@ -577,6 +581,7 @@ window.onload = () => {
         fetchSamples().then(() => {
             currentFilteredData = [...samplesData];
             updateCharts(currentFilteredData);
+            if (typeof initGlobe === 'function') initGlobe();
         });
     }
     lucide.createIcons();

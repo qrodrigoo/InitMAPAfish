@@ -322,14 +322,35 @@
                 const name = file.name;
                 const text = await file.text();
                 
-                const meta = parseSampleName(name);
-                const stats = detectAndParseReport(text);
-
-                if (stats) {
-                    parsedFilesData.push({ metadata: meta, stats: stats });
-                    appendToLog(`File standardized: ${name} (Format: ${stats.format})`, 'success');
+                if (name.toLowerCase().endsWith('.csv')) {
+                    const csvRows = text.split('\n').filter(l => l.trim().length > 0);
+                    const results = parseCSV(csvRows);
+                    results.forEach(res => {
+                        parsedFilesData.push({
+                            metadata: {
+                                sample_id: res.sample_id,
+                                tissue_item: res.tissue,
+                                health_item: res.health,
+                                tissue_label: 'CSV Data',
+                                group_label: 'CSV Data',
+                                time_hours: 24,
+                                vaccinated: 'N/A',
+                                replicate: 1
+                            },
+                            stats: res
+                        });
+                    });
+                    appendToLog(`CSV processed: ${name} (${results.length} samples)`, 'success');
                 } else {
-                    appendToLog(`Failed to recognize format for: ${name}`, 'error');
+                    const meta = parseSampleName(name);
+                    const stats = detectAndParseReport(text);
+
+                    if (stats) {
+                        parsedFilesData.push({ metadata: meta, stats: stats });
+                        appendToLog(`File standardized: ${name} (Format: ${stats.format})`, 'success');
+                    } else {
+                        appendToLog(`Failed to recognize format for: ${name}`, 'error');
+                    }
                 }
             }
 
@@ -363,12 +384,18 @@
 
                 const card = document.createElement('div');
                 card.className = 'flex items-center justify-between bg-white/[0.01] border border-white/[0.03] rounded-xl p-3 text-xs group/item';
+                
+                const locationHtml = (stats.lat && stats.lon) 
+                    ? `<span class="text-[9px] text-cyan-500 font-mono ml-2">📍 ${stats.lat}, ${stats.lon}</span>`
+                    : '';
+
                 card.innerHTML = `
                     <div class="flex items-center gap-3">
                         <div class="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] font-black text-slate-500 uppercase tracking-tighter">${stats.format}</div>
                         <div>
                             <span class="font-bold text-white">${meta.sample_id}</span>
-                            <span class="text-[10px] text-slate-500 bg-white/5 px-1.5 py-0.5 rounded font-mono ml-2">${meta.tissue_label} • ${meta.group_label}</span>
+                            <span class="text-[10px] text-slate-500 bg-white/5 px-1.5 py-0.5 rounded font-mono ml-2">${meta.tissue_label}</span>
+                            ${locationHtml}
                         </div>
                     </div>
                     <div class="text-right flex items-center gap-4">
@@ -551,6 +578,36 @@
             };
         }
 
+        function parseCSV(lines) {
+            const header = lines[0].toLowerCase().split(',').map(h => h.trim());
+            const dataLines = lines.slice(1);
+            let results = [];
+
+            for (let line of dataLines) {
+                const parts = line.split(',').map(p => p.trim());
+                if (parts.length < header.length) continue;
+
+                const row = {};
+                header.forEach((h, i) => row[h] = parts[i]);
+
+                results.push({
+                    format: 'CSV Metadata',
+                    sample_id: row.sampleid || 'Unnamed-Sample',
+                    species: row.species || 'Q97',
+                    tissue: row.tissue || 'Q102',
+                    health: row.health || 'Q103',
+                    project: row.project || 'Q98',
+                    total_reads: parseInt(row.reads) || 0,
+                    dominant_pct: parseFloat(row.abundance) || 0,
+                    abundance_score: 1.0,
+                    lat: row.lat ? parseFloat(row.lat) : null,
+                    lon: row.lon ? parseFloat(row.lon) : null,
+                    conditions: row.conditions || 'CSV Batch Entry'
+                });
+            }
+            return results;
+        }
+
         function generateQuickStatementsOutput() {
             let code = `/* ============================================================ */\n`;
             code += `/* QUICKSTATEMENTS BATCH CREATION - AUTOMATED OUTPUT            */\n`;
@@ -663,24 +720,33 @@
                 const meta = item.metadata;
                 const stats = item.stats;
 
-                const desc = `GRINNAQUA ${meta.tissue_label} sample | ${meta.time_hours}h | ${meta.vaccinated} | ${meta.group_label} | Replicate ${meta.replicate}`;
-                const exp = `${meta.time_hours}h post-infection | ${meta.vaccinated} | ${meta.group_label}`;
+                const desc = stats.format === 'CSV Metadata' 
+                    ? `Genomic sample from CSV batch submission.`
+                    : `GRINNAQUA ${meta.tissue_label} sample | ${meta.time_hours}h | ${meta.vaccinated} | ${meta.group_label} | Replicate ${meta.replicate}`;
+                
+                const exp = stats.conditions || `${meta.time_hours}h post-infection | ${meta.vaccinated} | ${meta.group_label}`;
+
+                const claims = {
+                    "P1": meta.tissue_item,
+                    "P2": meta.health_item,
+                    "P3": stats.dominant_pct,
+                    "P5": stats.species || "Q97",
+                    "P29": stats.project || "Q98",
+                    "P30": stats.total_reads,
+                    "P31": stats.format === 'Kraken2' ? "Kraken2/db2" : stats.format,
+                    "P32": exp,
+                    "P33": stats.abundance_score,
+                    "P34": "Species"
+                };
+
+                if (stats.lat && stats.lon) {
+                    claims["P35"] = { latitude: stats.lat, longitude: stats.lon };
+                }
 
                 return {
                     label: meta.sample_id,
                     desc: desc,
-                    claims: {
-                        "P1": meta.tissue_item,
-                        "P2": meta.health_item,
-                        "P3": stats.dominant_pct,
-                        "P5": "Q97", // Fish species
-                        "P29": "Q98", // Project
-                        "P30": stats.total_reads,
-                        "P31": "Kraken2/db2",
-                        "P32": exp,
-                        "P33": stats.abundance_score,
-                        "P34": "Species"
-                    }
+                    claims: claims
                 };
             });
 
