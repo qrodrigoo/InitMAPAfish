@@ -1,0 +1,12 @@
+name: shiny_app_demo
+title: shiny_app_demo
+username: initmapafish
+account: initmapafish
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 17245932
+bundleId: 11917506
+url: https://initmapafish.shinyapps.io/shiny_app_demo/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

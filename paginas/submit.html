@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Data | InitMAPAfish</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        ocean: {
+                            900: '#020617',
+                            800: '#09122C',
+                            700: '#111E3E',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="bg-ocean-900 text-slate-300 min-h-screen selection:bg-emerald-500/30 overflow-x-hidden relative">
+
+    <!-- Background Effects -->
+    <div class="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/10 via-ocean-900 to-ocean-900 pointer-events-none"></div>
+    
+    <!-- Navigation -->
+    <nav id="main-nav" class="sticky top-0 z-50 bg-ocean-900/70 backdrop-blur-xl border-b border-white/5 py-4 px-6 shadow-2xl">
+        <!-- Injected via components.js -->
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-6 py-16">
+        <!-- Header -->
+        <header class="mb-12 animate-fade-in text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                Authorized Researcher Portal
+            </div>
+            <h2 class="text-4xl md:text-5xl font-outfit font-black text-white mb-4 leading-tight">
+                Submit New Genomic Sample
+            </h2>
+            <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+                Automatic direct insertion into Wikibase Cloud via Bot API integration.
+            </p>
+        </header>
+
+        <!-- Bot API Integration Panel (Pre-filled for direct push) -->
+        <div class="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-6 max-w-2xl mx-auto mb-8 relative group">
+            <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/[0.03] to-transparent pointer-events-none"></div>
+            <div class="flex items-center justify-between cursor-pointer" onclick="document.getElementById('bot-settings').classList.toggle('hidden')">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                        <i data-lucide="key" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-outfit font-bold text-white leading-none">Wikibase Bot Integration Settings</h4>
+                        <p class="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-bold">Securely configured credentials for API pushes</p>
+                    </div>
+                </div>
+                <i data-lucide="chevron-down" class="text-slate-500 w-5 h-5 group-hover:text-emerald-400 transition-colors"></i>
+            </div>
+            <div id="bot-settings" class="hidden mt-6 pt-4 border-t border-white/[0.05] space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Bot Username</label>
+                        <input type="text" id="bot-user" value="Rodrigo-test-ciimar@mapafish_bot" class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-mono">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Bot Password</label>
+                        <input type="text" id="bot-pass" value="toedi398bc575ambac32l34h0a703pb6" class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-mono">
+                    </div>
+                </div>
+                <p class="text-[9px] text-emerald-500/60 font-bold uppercase tracking-wider">Note: Directly authorized editing. Uses CORS fallback proxy where needed.</p>
+            </div>
+        </div>
+
+        <!-- Mode Select Tabs -->
+        <div class="flex flex-col md:flex-row gap-4 mb-8 bg-white/[0.02] p-2 rounded-2xl border border-white/[0.05] max-w-xl mx-auto">
+            <button id="tab-auto" onclick="switchMode('auto')" class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold font-outfit tracking-wider text-xs uppercase bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 text-emerald-300 shadow-lg hover:shadow-emerald-500/10 transition-all duration-300">
+                <i data-lucide="cpu" class="w-4 h-4"></i>
+                Automatic Parser
+            </button>
+            <button id="tab-manual" onclick="switchMode('manual')" class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold font-outfit tracking-wider text-xs uppercase text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-300">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                Manual Form
+            </button>
+        </div>
+
+        <!-- Submission Content -->
+        <div class="bg-ocean-800/40 backdrop-blur-xl rounded-[2.5rem] border border-white/5 p-8 md:p-12 shadow-2xl relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.02] to-transparent pointer-events-none"></div>
+            
+            <!-- AUTOMATIC PARSER MODE -->
+            <div id="mode-auto" class="space-y-8 animate-fade-in">
+                <div class="border-b border-white/5 pb-4">
+                    <h3 class="text-xl font-outfit font-bold text-white flex items-center gap-3">
+                        <i data-lucide="layers" class="text-emerald-400 w-5 h-5"></i>
+                        Universal Taxonomic Hub <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20 ml-2">Taxpasta Logic</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Automatic detection, validation, and standardisation of taxonomic profiles (Kraken2, Bracken, Centrifuge, MetaPhlAn, and more).</p>
+                </div>
+
+                <!-- Dropzone -->
+                <div id="dropzone" ondragover="event.preventDefault(); this.classList.add('border-emerald-400/50', 'bg-emerald-500/[0.03]')" ondragleave="this.classList.remove('border-emerald-400/50', 'bg-emerald-500/[0.03]')" ondrop="handleDrop(event)" class="border-2 border-dashed border-white/10 rounded-2xl p-12 text-center hover:border-emerald-500/30 hover:bg-white/[0.01] cursor-pointer transition-all flex flex-col items-center gap-4 relative group/dropzone">
+                    <input type="file" id="file-input" multiple onchange="handleFiles(this.files)" class="absolute inset-0 opacity-0 cursor-pointer z-20">
+                    <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 flex items-center justify-center group-hover/dropzone:scale-110 group-hover/dropzone:border-emerald-500/40 group-hover/dropzone:shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all">
+                        <i data-lucide="box" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <p class="font-outfit font-bold text-base text-white">Click or drag & drop profile reports here</p>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Supports Kraken2, Bracken, Centrifuge, MetaPhlAn, and mOTUs</p>
+                    </div>
+                </div>
+
+                <!-- File Summary Panel -->
+                <div id="file-summary" class="hidden bg-white/[0.02] border border-white/[0.05] rounded-xl p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/[0.05] pb-3">
+                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="check-circle-2" class="text-emerald-400 w-4 h-4"></i>
+                            Files Parsed (<span id="parsed-count">0</span>)
+                        </h4>
+                        <button onclick="clearFiles()" class="text-[10px] uppercase font-bold tracking-wider text-slate-500 hover:text-rose-400 transition-colors">Clear</button>
+                    </div>
+                    <div id="parsed-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+
+            <!-- MANUAL ENTRY MODE -->
+            <div id="mode-manual" class="hidden animate-fade-in">
+                <form id="submission-form" onsubmit="handleManualSubmit(event)" class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Identification -->
+                    <div class="md:col-span-2 flex items-center gap-3 pb-2 border-b border-white/5 mb-2">
+                        <i data-lucide="tag" class="text-emerald-400 w-5 h-5"></i>
+                        <h3 class="text-lg font-outfit font-bold text-white">Identification</h3>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Sample Label</label>
+                        <input type="text" id="manual-label" required placeholder="e.g. SA_ROB_024" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-medium">
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Fish Species</label>
+                        <select id="manual-species" required class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer">
+                            <option value="Q97">Dourada (Sparus aurata) - Q97</option>
+                            <option value="Q58">Robalo (Dicentrarchus labrax) - Q58</option>
+                            <option value="Q6">Pregado (Scophthalmus maximus) - Q6</option>
+                        </select>
+                    </div>
+
+                    <!-- Secondary Metadata -->
+                    <div class="md:col-span-2 flex items-center gap-3 pb-2 border-b border-white/5 mb-2 mt-4">
+                        <i data-lucide="microscope" class="text-emerald-400 w-5 h-5"></i>
+                        <h3 class="text-lg font-outfit font-bold text-white">Laboratory Metadata</h3>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Tissue Type</label>
+                        <select id="manual-tissue" required class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer">
+                            <option value="Q102">Gut Intestine - Q102</option>
+                            <option value="Q101">Skin / Gills - Q101</option>
+                            <option value="Q3">General Tissue - Q3</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Health Status</label>
+                        <select id="manual-health" required class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer">
+                            <option value="Q103">Healthy - Q103</option>
+                            <option value="Q104">Infected / Challenge - Q104</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Project Identifier</label>
+                        <select id="manual-project" required class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer">
+                            <option value="Q98">A2S Atlantic Fish Project - Q98</option>
+                            <option value="Q96">InitMAPAfish Baseline - Q96</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Raw Reads Count</label>
+                        <input type="number" id="manual-reads" required placeholder="e.g. 14694854" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-mono">
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Dominant Abundance (%)</label>
+                        <input type="number" step="0.01" id="manual-abundance" required placeholder="e.g. 5.33" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-mono">
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Experimental Conditions</label>
+                        <input type="text" id="manual-conditions" placeholder="e.g. 24h post-infection | Vaccinated | Control" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all font-medium">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="md:col-span-2 pt-8">
+                        <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-ocean-900 font-black py-4 rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_10px_40px_rgba(16,185,129,0.5)] transform hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 text-lg uppercase tracking-widest">
+                            <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                            Process Manual Entry
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TERMINAL/PREVIEW CONSOLE FOR EXPORTS -->
+            <div id="results-panel" class="hidden animate-fade-in border-t border-white/5 pt-8 mt-8 space-y-6">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <h4 class="text-base font-outfit font-black text-white uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="terminal" class="text-emerald-400 w-5 h-5"></i>
+                            Export Dashboard
+                        </h4>
+                        <p class="text-xs text-slate-400 mt-0.5">Push directly via API to your Wikibase Cloud, or generate a QuickStatements copy batch.</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-full md:w-auto">
+                        <button onclick="pushToWikibase()" class="flex-1 md:flex-initial flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-ocean-900 font-black rounded-xl font-outfit text-xs uppercase tracking-wider shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_4px_25px_rgba(16,185,129,0.5)] transform hover:-translate-y-0.5 transition-all active:scale-95">
+                            <i data-lucide="rocket" class="w-4 h-4"></i>
+                            Push Directly to Wikibase
+                        </button>
+                        <button onclick="copyResults()" class="flex-1 md:flex-initial flex items-center justify-center gap-2 px-5 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-bold font-outfit text-xs uppercase transition-all tracking-wider">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                            Copy Batch Code
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Log Console -->
+                <div id="action-log" class="hidden bg-slate-950 border border-white/[0.05] rounded-2xl p-4 font-mono text-xs space-y-1.5 max-h-40 overflow-y-auto">
+                    <div class="text-slate-500 flex items-center gap-2">
+                        <span class="text-emerald-500">></span>
+                        Direct ingestion logging session started...
+                    </div>
+                </div>
+
+                <div class="relative bg-black/40 border border-white/[0.08] rounded-2xl p-6 overflow-hidden">
+                    <pre id="quickstatements-output" class="text-xs text-emerald-200 font-mono overflow-x-auto whitespace-pre leading-relaxed select-all max-h-72 pr-2">/* Results will load here... */</pre>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/components.js"></script>
+    <script>
+        lucide.createIcons();
+
+        let currentMode = 'auto';
+        let parsedFilesData = [];
+
+        function switchMode(mode) {
+            currentMode = mode;
+            const tabAuto = document.getElementById('tab-auto');
+            const tabManual = document.getElementById('tab-manual');
+            const modeAuto = document.getElementById('mode-auto');
+            const modeManual = document.getElementById('mode-manual');
+
+            if (mode === 'auto') {
+                tabAuto.className = 'flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold font-outfit tracking-wider text-xs uppercase bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 text-emerald-300 shadow-lg hover:shadow-emerald-500/10 transition-all duration-300';
+                tabManual.className = 'flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold font-outfit tracking-wider text-xs uppercase text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-300';
+                modeAuto.classList.remove('hidden');
+                modeManual.classList.add('hidden');
+            } else {
+                tabManual.className = 'flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold font-outfit tracking-wider text-xs uppercase bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 text-emerald-300 shadow-lg hover:shadow-emerald-500/10 transition-all duration-300';
+                tabAuto.className = 'flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold font-outfit tracking-wider text-xs uppercase text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-300';
+                modeAuto.classList.add('hidden');
+                modeManual.classList.remove('hidden');
+            }
+            document.getElementById('results-panel').classList.add('hidden');
+        }
+
+        // --- Logging helper ---
+        function appendToLog(msg, type = 'info') {
+            const consoleBox = document.getElementById('action-log');
+            consoleBox.classList.remove('hidden');
+            
+            const colorMap = {
+                info: 'text-slate-300',
+                success: 'text-emerald-400 font-bold',
+                error: 'text-rose-400 font-bold',
+                pending: 'text-amber-300 font-mono'
+            };
+
+            const div = document.createElement('div');
+            div.className = `${colorMap[type]} flex items-center gap-2`;
+            div.innerHTML = `<span class="text-emerald-500/40 font-mono">></span> ${msg}`;
+            consoleBox.appendChild(div);
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+
+        // --- File drop/drag handlers ---
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.remove('border-emerald-400/50', 'bg-emerald-500/[0.03]');
+            if (e.dataTransfer.files) {
+                handleFiles(e.dataTransfer.files);
+            }
+        }
+
+        async function handleFiles(files) {
+            if (!files || files.length === 0) return;
+
+            for (const file of files) {
+                const name = file.name;
+                const text = await file.text();
+                
+                const meta = parseSampleName(name);
+                const stats = detectAndParseReport(text);
+
+                if (stats) {
+                    parsedFilesData.push({ metadata: meta, stats: stats });
+                    appendToLog(`File standardized: ${name} (Format: ${stats.format})`, 'success');
+                } else {
+                    appendToLog(`Failed to recognize format for: ${name}`, 'error');
+                }
+            }
+
+            renderParsedFiles();
+            generateQuickStatementsOutput();
+        }
+
+        function clearFiles() {
+            parsedFilesData = [];
+            renderParsedFiles();
+            document.getElementById('results-panel').classList.add('hidden');
+        }
+
+        function renderParsedFiles() {
+            const summaryPanel = document.getElementById('file-summary');
+            const list = document.getElementById('parsed-list');
+            const count = document.getElementById('parsed-count');
+
+            if (parsedFilesData.length === 0) {
+                summaryPanel.classList.add('hidden');
+                return;
+            }
+
+            summaryPanel.classList.remove('hidden');
+            count.textContent = parsedFilesData.length;
+            list.innerHTML = '';
+
+            parsedFilesData.forEach(item => {
+                const meta = item.metadata;
+                const stats = item.stats;
+
+                const card = document.createElement('div');
+                card.className = 'flex items-center justify-between bg-white/[0.01] border border-white/[0.03] rounded-xl p-3 text-xs group/item';
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] font-black text-slate-500 uppercase tracking-tighter">${stats.format}</div>
+                        <div>
+                            <span class="font-bold text-white">${meta.sample_id}</span>
+                            <span class="text-[10px] text-slate-500 bg-white/5 px-1.5 py-0.5 rounded font-mono ml-2">${meta.tissue_label} • ${meta.group_label}</span>
+                        </div>
+                    </div>
+                    <div class="text-right flex items-center gap-4">
+                        <span class="text-emerald-400 font-bold">${stats.total_reads > 0 ? stats.total_reads.toLocaleString() : 'N/A'} reads</span>
+                        <span class="text-indigo-400 font-bold">${stats.dominant_pct.toFixed(2)}% top</span>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function parseSampleName(filename) {
+            const base = filename.replace("_db2.kraken2.kraken2.report.txt", "").replace(".txt", "");
+            // Match pattern like GI24VCTRL1 or SK0CTRL1
+            const match = base.match(/^(GI|SK)(\d+)(NV|V)?(CTRL|MET)(\d)$/);
+            
+            let tissue_code = 'SK', time_h = 0, vaccine_code = 'NV', group_code = 'CTRL', replicate = 1;
+            
+            if (match) {
+                tissue_code = match[1];
+                time_h = parseInt(match[2]);
+                vaccine_code = match[3] || 'NV';
+                group_code = match[4];
+                replicate = parseInt(match[5]);
+            }
+
+            const tissue_map = { 'GI': 'Gut Intestine', 'SK': 'Skin / Gills' };
+            const vaccine_map = { 'V': 'Vaccinated', 'NV': 'Non-Vaccinated' };
+            const group_map = { 'CTRL': 'Control', 'MET': 'Metagenomics/Infected' };
+            
+            const tissue_item_map = { 'GI': 'Q102', 'SK': 'Q101' };
+            const health_item_map = { 'CTRL': 'Q103', 'MET': 'Q104' };
+
+            return {
+                sample_id: base,
+                tissue_code,
+                tissue_label: tissue_map[tissue_code] || 'General Tissue',
+                tissue_item: tissue_item_map[tissue_code] || 'Q3',
+                time_hours: time_h,
+                vaccinated: vaccine_map[vaccine_code] || 'Non-Vaccinated',
+                group_code,
+                group_label: group_map[group_code] || 'Control',
+                health_item: health_item_map[group_code] || 'Q103',
+                replicate,
+                filename
+            };
+        }
+
+        function detectAndParseReport(content) {
+            const lines = content.split('\n').filter(l => l.trim().length > 0);
+            if (lines.length === 0) return null;
+
+            const firstLine = lines[0];
+            const headers = firstLine.toLowerCase();
+
+            // 1. Detect MetaPhlAn (starts with # or has specific headers)
+            if (headers.includes('clade_name') || firstLine.startsWith('#')) {
+                return parseMetaPhlAn(lines);
+            }
+
+            // 2. Detect Bracken (name, tax_id, rank, kraken_assigned_reads, etc)
+            if (headers.includes('name') && headers.includes('tax_id') && headers.includes('kraken_assigned_reads')) {
+                return parseBracken(lines);
+            }
+
+            // 3. Detect Centrifuge (name, id, taxID, rank, numReads)
+            if (headers.includes('numreads') && headers.includes('taxid')) {
+                return parseCentrifuge(lines);
+            }
+
+            // 4. Default to Kraken2 Report (Tab separated, at least 6 columns, starts with numbers)
+            const parts = firstLine.split('\t');
+            if (parts.length >= 6 && !isNaN(parseFloat(parts[0]))) {
+                return parseKrakenReport(lines);
+            }
+
+            return null;
+        }
+
+        function parseKrakenReport(lines) {
+            let total_reads = 0;
+            let classified_reads = 0;
+            let species_list = [];
+
+            for (let line of lines) {
+                const parts = line.trim().split('\t');
+                if (parts.length < 6) continue;
+
+                const pct = parseFloat(parts[0]);
+                const clade_reads = parseInt(parts[1]);
+                const rank_code = parts[3];
+                const scientific_name = parts[5].trim();
+
+                if (isNaN(pct) || isNaN(clade_reads)) continue;
+
+                if (rank_code === 'U') total_reads += clade_reads;
+                if (rank_code === 'R') {
+                    classified_reads = clade_reads;
+                    total_reads += clade_reads;
+                }
+                if (rank_code === 'S' && pct >= 0.01) {
+                    species_list.push({ name: scientific_name, pct: pct });
+                }
+            }
+
+            species_list.sort((a, b) => b.pct - a.pct);
+            return {
+                format: 'Kraken2',
+                total_reads,
+                dominant_pct: species_list[0]?.pct || 0.0,
+                abundance_score: total_reads > 0 ? (classified_reads / total_reads) : 0.0
+            };
+        }
+
+        function parseBracken(lines) {
+            let species_list = [];
+            // Skip header
+            const dataLines = lines.slice(1);
+            for (let line of dataLines) {
+                const parts = line.split('\t');
+                if (parts.length < 7) continue;
+                const name = parts[0];
+                const fraction = parseFloat(parts[6]);
+                if (!isNaN(fraction)) {
+                    species_list.push({ name, pct: fraction * 100 });
+                }
+            }
+            species_list.sort((a, b) => b.pct - a.pct);
+            return {
+                format: 'Bracken',
+                total_reads: 0, // Bracken usually doesn't show total reads for whole sample in output
+                dominant_pct: species_list[0]?.pct || 0.0,
+                abundance_score: 1.0
+            };
+        }
+
+        function parseMetaPhlAn(lines) {
+            let species_list = [];
+            for (let line of lines) {
+                if (line.startsWith('#')) continue;
+                const parts = line.split('\t');
+                if (parts.length < 3) continue;
+                const clade = parts[0];
+                if (clade.includes('s__')) { // Only species
+                    const name = clade.split('s__')[1];
+                    const pct = parseFloat(parts[2]);
+                    if (!isNaN(pct)) {
+                        species_list.push({ name, pct });
+                    }
+                }
+            }
+            species_list.sort((a, b) => b.pct - a.pct);
+            return {
+                format: 'MetaPhlAn',
+                total_reads: 0,
+                dominant_pct: species_list[0]?.pct || 0.0,
+                abundance_score: 1.0
+            };
+        }
+
+        function parseCentrifuge(lines) {
+            let species_list = [];
+            const dataLines = lines.slice(1);
+            for (let line of dataLines) {
+                const parts = line.split('\t');
+                if (parts.length < 8) continue;
+                const name = parts[0];
+                const rank = parts[3];
+                const abundance = parseFloat(parts[7]);
+                if (rank === 'species' && !isNaN(abundance)) {
+                    species_list.push({ name, pct: abundance * 100 });
+                }
+            }
+            species_list.sort((a, b) => b.pct - a.pct);
+            return {
+                format: 'Centrifuge',
+                total_reads: 0,
+                dominant_pct: species_list[0]?.pct || 0.0,
+                abundance_score: 1.0
+            };
+        }
+
+        function generateQuickStatementsOutput() {
+            let code = `/* ============================================================ */\n`;
+            code += `/* QUICKSTATEMENTS BATCH CREATION - AUTOMATED OUTPUT            */\n`;
+            code += `/* Total files: ${parsedFilesData.length}                                            */\n`;
+            code += `/* ============================================================ */\n\n`;
+
+            parsedFilesData.forEach(item => {
+                const meta = item.metadata;
+                const stats = item.stats;
+
+                const desc = `GRINNAQUA ${meta.tissue_label} sample | ${meta.time_hours}h | ${meta.vaccinated} | ${meta.group_label} | Replicate ${meta.replicate}`;
+                const exp = `${meta.time_hours}h post-infection | ${meta.vaccinated} | ${meta.group_label}`;
+
+                code += `/* --- ${meta.sample_id} --- */\n`;
+                code += `CREATE\n`;
+                code += `LAST\tLen\t"${meta.sample_id}"\n`;
+                code += `LAST\tDen\t"${desc}"\n`;
+                code += `LAST\tP5\tQ97\n`;
+                code += `LAST\tP29\tQ98\n`;
+                code += `LAST\tP1\t${meta.tissue_item}\n`;
+                code += `LAST\tP2\t${meta.health_item}\n`;
+                code += `LAST\tP32\t"${exp}"\n`;
+                code += `LAST\tP30\t${stats.total_reads}\n`;
+                code += `LAST\tP31\t"Kraken2/db2"\n`;
+                code += `LAST\tP3\t${stats.dominant_pct}\n`;
+                code += `LAST\tP33\t${stats.abundance_score}\n`;
+                code += `LAST\tP34\t"Species"\n\n`;
+            });
+
+            const preview = document.getElementById('quickstatements-output');
+            preview.textContent = code;
+            document.getElementById('results-panel').classList.remove('hidden');
+        }
+
+        function handleManualSubmit(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('manual-label').value;
+            const species = document.getElementById('manual-species').value;
+            const tissue = document.getElementById('manual-tissue').value;
+            const health = document.getElementById('manual-health').value;
+            const project = document.getElementById('manual-project').value;
+            const reads = document.getElementById('manual-reads').value;
+            const abundance = document.getElementById('manual-abundance').value;
+            const conditions = document.getElementById('manual-conditions').value || 'Baseline challenge';
+
+            // Construct single item parsed array
+            parsedFilesData = [{
+                metadata: {
+                    sample_id: id,
+                    tissue_label: document.getElementById('manual-tissue').selectedOptions[0].text.split(' - ')[0],
+                    tissue_item: tissue,
+                    health_item: health,
+                    group_label: document.getElementById('manual-health').selectedOptions[0].text.split(' - ')[0],
+                    time_hours: 24,
+                    vaccinated: 'No Vaccine Status Given',
+                    replicate: 1
+                },
+                stats: {
+                    total_reads: parseInt(reads),
+                    dominant_pct: parseFloat(abundance),
+                    abundance_score: 1.0,
+                    dominant_taxon: 'Manual submission'
+                }
+            }];
+
+            let code = `/* ============================================================ */\n`;
+            code += `/* QUICKSTATEMENTS BATCH CREATION - MANUAL FORM OUTPUT           */\n`;
+            code += `/* ============================================================ */\n\n`;
+
+            code += `/* --- ${id} --- */\n`;
+            code += `CREATE\n`;
+            code += `LAST\tLen\t"${id}"\n`;
+            code += `LAST\tDen\t"Genomic research sample from authorized repository."\n`;
+            code += `LAST\tP5\t${species}\n`;
+            code += `LAST\tP29\t${project}\n`;
+            code += `LAST\tP1\t${tissue}\n`;
+            code += `LAST\tP2\t${health}\n`;
+            code += `LAST\tP32\t"${conditions}"\n`;
+            code += `LAST\tP30\t${reads}\n`;
+            code += `LAST\tP31\t"Manual Entry"\n`;
+            code += `LAST\tP3\t${abundance}\n`;
+            code += `LAST\tP33\t1.0\n`;
+            code += `LAST\tP34\t"Species"\n\n`;
+
+            const preview = document.getElementById('quickstatements-output');
+            preview.textContent = code;
+            document.getElementById('results-panel').classList.remove('hidden');
+        }
+
+        // --- Direct Push to Wikibase Cloud using Local Proxy ---
+        async function pushToWikibase() {
+            if (parsedFilesData.length === 0) {
+                alert('Load or drop report files to insert first.');
+                return;
+            }
+
+            const botUser = document.getElementById('bot-user').value;
+            const botPass = document.getElementById('bot-pass').value;
+
+            if (!botUser || !botPass) {
+                alert('Please fill out the bot credentials.');
+                return;
+            }
+
+            appendToLog('Connecting to local proxy backend (port 8001)...', 'pending');
+
+            // Format data exactly for the Python backend
+            const formattedSamples = parsedFilesData.map(item => {
+                const meta = item.metadata;
+                const stats = item.stats;
+
+                const desc = `GRINNAQUA ${meta.tissue_label} sample | ${meta.time_hours}h | ${meta.vaccinated} | ${meta.group_label} | Replicate ${meta.replicate}`;
+                const exp = `${meta.time_hours}h post-infection | ${meta.vaccinated} | ${meta.group_label}`;
+
+                return {
+                    label: meta.sample_id,
+                    desc: desc,
+                    claims: {
+                        "P1": meta.tissue_item,
+                        "P2": meta.health_item,
+                        "P3": stats.dominant_pct,
+                        "P5": "Q97", // Fish species
+                        "P29": "Q98", // Project
+                        "P30": stats.total_reads,
+                        "P31": "Kraken2/db2",
+                        "P32": exp,
+                        "P33": stats.abundance_score,
+                        "P34": "Species"
+                    }
+                };
+            });
+
+            try {
+                appendToLog('Sending insertion payload to Python ingestion service...', 'info');
+                const response = await fetch('http://127.0.0.1:8001/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: botUser,
+                        password: botPass,
+                        samples: formattedSamples
+                    })
+                });
+
+                const resData = await response.json();
+
+                if (resData.success && resData.created) {
+                    appendToLog('Batch creation completely successful!', 'success');
+                    resData.created.forEach(c => {
+                        appendToLog(`Item created on Wikibase: ${c.label} -> ${c.id}`, 'success');
+                    });
+                    alert('Success! All metadata claims were successfully added directly to your Wikibase Cloud via API.');
+                } else if (resData.error) {
+                    throw new Error(resData.error);
+                } else {
+                    throw new Error('Unknown server response.');
+                }
+
+            } catch (err) {
+                appendToLog(`API direct connection error: ${err.message}`, 'error');
+                alert(`Error processing upload: ${err.message}. Make sure backend.py is running.`);
+            }
+        }
+
+        function copyResults() {
+            const preview = document.getElementById('quickstatements-output');
+            navigator.clipboard.writeText(preview.textContent);
+            alert('Code copied to clipboard! Paste directly into your Wikibase QuickStatements interface.');
+        }
+    </script>
+</body>
+</html>
