@@ -178,6 +178,8 @@ async function fetchSamples() {
                 };
             });
 
+            console.log("Samples data processed for UI:", samplesData);
+
             if(statCount) statCount.textContent = samplesData.length;
             if (typeof populateFilters === 'function') populateFilters(samplesData);
             if (typeof renderSamples === 'function') renderSamples(samplesData);
