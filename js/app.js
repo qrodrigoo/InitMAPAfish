@@ -22,29 +22,41 @@ function openModal(sample) {
     const entries = Object.entries(sample.claims);
     if(entries.length > 0) {
         entries.forEach(([label, value]) => {
+            // Format value if it's an object (like coordinates)
+            let displayValue = value;
+            if (typeof value === 'object' && value !== null) {
+                if (value.lat !== undefined && value.lon !== undefined) {
+                    displayValue = `Lat: ${value.lat.toFixed(4)}, Lon: ${value.lon.toFixed(4)}`;
+                } else if (value.latitude !== undefined && value.longitude !== undefined) {
+                    displayValue = `Lat: ${value.latitude.toFixed(4)}, Lon: ${value.longitude.toFixed(4)}`;
+                } else {
+                    displayValue = JSON.stringify(value);
+                }
+            }
+
             const isAbundance = label.includes('Abundance') || label.includes('Score');
             const isReads = label.includes('Reads');
-            const isID = value.toString().startsWith('Q') && value.toString().length < 5;
+            const isID = displayValue.toString().startsWith('Q') && displayValue.toString().length < 5;
             const description = METADATA_DICTIONARY[label] || "Genomic property stored in Wikibase.";
             
-            let valClass = 'text-white text-sm font-medium';
-            if (isAbundance) valClass = 'text-emerald-400 text-sm font-bold';
-            else if (isReads) valClass = 'text-blue-400 text-sm font-mono';
-            else if (isID) valClass = 'text-purple-400 text-sm font-mono';
+            let valClass = 'text-slate-900 dark:text-white text-sm font-medium';
+            if (isAbundance) valClass = 'text-emerald-600 dark:text-emerald-400 text-sm font-bold';
+            else if (isReads) valClass = 'text-blue-600 dark:text-blue-400 text-sm font-mono';
+            else if (isID) valClass = 'text-purple-600 dark:text-purple-400 text-sm font-mono';
 
             claimsContainer.innerHTML += `
-                <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-all group/modal-item">
+                <div class="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 hover:bg-slate-100 dark:hover:bg-white/10 transition-all group/modal-item shadow-sm dark:shadow-none">
                     <div class="flex items-center gap-2 mb-2">
-                        <span class="text-[10px] font-bold text-cyan-500/80 uppercase tracking-widest">${label}</span>
+                        <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-500/80 uppercase tracking-widest">${label}</span>
                         <div class="relative group/tooltip">
-                            <i data-lucide="help-circle" class="w-3 h-3 text-slate-600 hover:text-cyan-400 transition-colors cursor-help"></i>
+                            <i data-lucide="help-circle" class="w-3 h-3 text-slate-400 dark:text-slate-600 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors cursor-help"></i>
                             <div class="absolute bottom-full left-0 mb-2 w-56 p-3 bg-slate-900 border border-white/10 rounded-xl text-xs text-white leading-relaxed opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all z-50 pointer-events-none shadow-2xl">
                                 ${description}
                                 <div class="absolute top-full left-4 border-8 border-transparent border-t-slate-900"></div>
                             </div>
                         </div>
                     </div>
-                    <span class="${valClass} break-words block">${value}${isAbundance && !label.includes('Score') ? '%' : ''}</span>
+                    <span class="${valClass} break-words block">${displayValue}${isAbundance && !label.includes('Score') ? '%' : ''}</span>
                 </div>
             `;
         });
@@ -303,13 +315,13 @@ function renderSamples(data) {
         const isSelected = typeof selectedForComparison !== 'undefined' && selectedForComparison.includes(s.id);
         const compareBtnClass = isSelected 
             ? "bg-cyan-500 text-ocean-900 border-cyan-400 font-black shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:bg-cyan-400" 
-            : "bg-white/5 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 border-transparent hover:border-cyan-500/30";
+            : "bg-slate-100 dark:bg-white/5 hover:bg-cyan-500/20 text-slate-500 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 border-slate-200 dark:border-transparent hover:border-cyan-500/30";
 
         card.innerHTML = `
             <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
             <div class="relative z-10 flex flex-col h-full">
                 <div class="flex justify-between items-start mb-6">
-                    <div class="px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 text-[10px] font-black tracking-widest uppercase border border-white/10 group-hover:bg-cyan-500 group-hover:text-ocean-900 group-hover:border-cyan-400 transition-colors shadow-sm">
+                    <div class="px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-black tracking-widest uppercase border border-slate-200 dark:border-white/10 group-hover:bg-cyan-500 group-hover:text-ocean-900 group-hover:border-cyan-400 transition-colors shadow-sm">
                         ID: ${s.id}
                     </div>
                     <div class="flex items-center gap-2">
@@ -317,13 +329,13 @@ function renderSamples(data) {
                             <i data-lucide="git-compare" class="w-3.5 h-3.5 pointer-events-none"></i>
                             <span class="pointer-events-none">${isSelected ? 'Selected' : 'Compare'}</span>
                         </button>
-                        <a href="${s.url}" target="_blank" onclick="event.stopPropagation()" title="View on Wikibase" class="text-slate-500 hover:text-cyan-400 transition-colors bg-white/[0.03] p-2 rounded-full hover:bg-white/10 border border-transparent hover:border-white/10">
+                        <a href="${s.url}" target="_blank" onclick="event.stopPropagation()" title="View on Wikibase" class="text-slate-500 hover:text-cyan-400 transition-colors bg-slate-100 dark:bg-white/[0.03] p-2 rounded-full hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10">
                             <i data-lucide="external-link" class="w-4 h-4"></i>
                         </a>
                     </div>
                 </div>
                 
-                <h3 class="text-2xl font-outfit font-black text-white mb-3 group-hover:text-cyan-400 transition-colors leading-tight drop-shadow-md">
+                <h3 class="text-2xl font-outfit font-black text-slate-900 dark:text-white mb-3 group-hover:text-cyan-400 transition-colors leading-tight drop-shadow-md">
                     ${s.label}
                 </h3>
                 
@@ -572,22 +584,22 @@ const refreshBtn = document.getElementById('refresh-btn');
 if(refreshBtn) {
     refreshBtn.addEventListener('click', () => {
         fetchSamples().then(() => {
-            if (typeof initGlobe === 'function') initGlobe();
+            if (typeof initMap === 'function') initMap();
         });
     });
 }
 
 // Initialize App
 window.onload = () => {
-    // Initialize globe immediately (empty)
-    if (typeof initGlobe === 'function') initGlobe();
+    // Initialize map immediately (empty)
+    if (typeof initMap === 'function') initMap();
 
     if (typeof fetchSamples === 'function') {
         fetchSamples().then(() => {
             currentFilteredData = [...samplesData];
             updateCharts(currentFilteredData);
-            // Update globe with data if available
-            if (typeof initGlobe === 'function') initGlobe();
+            // Update map with data if available
+            if (typeof initMap === 'function') initMap();
         });
     }
     lucide.createIcons();
