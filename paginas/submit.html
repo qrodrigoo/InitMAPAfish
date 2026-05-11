@@ -618,23 +618,32 @@
                 const meta = item.metadata;
                 const stats = item.stats;
 
-                const desc = `GRINNAQUA ${meta.tissue_label} sample | ${meta.time_hours}h | ${meta.vaccinated} | ${meta.group_label} | Replicate ${meta.replicate}`;
-                const exp = `${meta.time_hours}h post-infection | ${meta.vaccinated} | ${meta.group_label}`;
+                const desc = stats.format === 'CSV Metadata' 
+                    ? `Genomic sample from CSV batch submission.`
+                    : `GRINNAQUA ${meta.tissue_label} sample | ${meta.time_hours}h | ${meta.vaccinated} | ${meta.group_label} | Replicate ${meta.replicate}`;
+                
+                const exp = stats.conditions || `${meta.time_hours}h post-infection | ${meta.vaccinated} | ${meta.group_label}`;
+                const p31 = stats.format === 'Kraken2' ? "Kraken2/db2" : stats.format;
 
                 code += `/* --- ${meta.sample_id} --- */\n`;
                 code += `CREATE\n`;
                 code += `LAST\tLen\t"${meta.sample_id}"\n`;
                 code += `LAST\tDen\t"${desc}"\n`;
-                code += `LAST\tP5\tQ97\n`;
-                code += `LAST\tP29\tQ98\n`;
+                code += `LAST\tP5\t${stats.species || "Q97"}\n`;
+                code += `LAST\tP29\t${stats.project || "Q98"}\n`;
                 code += `LAST\tP1\t${meta.tissue_item}\n`;
                 code += `LAST\tP2\t${meta.health_item}\n`;
                 code += `LAST\tP32\t"${exp}"\n`;
                 code += `LAST\tP30\t${stats.total_reads}\n`;
-                code += `LAST\tP31\t"Kraken2/db2"\n`;
+                code += `LAST\tP31\t"${p31}"\n`;
                 code += `LAST\tP3\t${stats.dominant_pct}\n`;
                 code += `LAST\tP33\t${stats.abundance_score}\n`;
-                code += `LAST\tP34\t"Species"\n\n`;
+                code += `LAST\tP34\t"Species"\n`;
+
+                if (stats.lat && stats.lon) {
+                    code += `LAST\tP35\t@${stats.lat}/${stats.lon}\n`;
+                }
+                code += `\n`;
             });
 
             const preview = document.getElementById('quickstatements-output');

@@ -1,4 +1,0 @@
-SampleID,Species,Tissue,Health,Project,Reads,Abundance,Lat,Lon,Conditions
-SA_PORTO_01,Q97,Q102,Q103,Q98,15000000,85.5,41.1579,-8.6291,Control Group Porto
-SB_LISBON_02,Q58,Q101,Q104,Q96,12500000,62.3,38.7223,-9.1393,Infected Tagus River
-SC_FARO_03,Q6,Q3,Q103,Q98,18700000,91.1,37.0179,-7.9307,Healthy Algarve Coast

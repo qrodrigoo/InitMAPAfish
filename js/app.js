@@ -486,7 +486,9 @@ function updateCharts(data) {
         speciesCounts[sp] = (speciesCounts[sp] || 0) + 1;
     });
 
-    const pieCtx = document.getElementById('speciesChart').getContext('2d');
+    const pieCanvas = document.getElementById('speciesChart');
+    if (!pieCanvas) return;
+    const pieCtx = pieCanvas.getContext('2d');
     if (speciesChartInstance) speciesChartInstance.destroy();
 
     speciesChartInstance = new Chart(pieCtx, {
@@ -577,10 +579,14 @@ if(refreshBtn) {
 
 // Initialize App
 window.onload = () => {
+    // Initialize globe immediately (empty)
+    if (typeof initGlobe === 'function') initGlobe();
+
     if (typeof fetchSamples === 'function') {
         fetchSamples().then(() => {
             currentFilteredData = [...samplesData];
             updateCharts(currentFilteredData);
+            // Update globe with data if available
             if (typeof initGlobe === 'function') initGlobe();
         });
     }
